@@ -82,6 +82,7 @@ pub fn build(b: *Build) !void {
             "evaluate.cpp",
         },
         .flags = &.{
+            "-Wno-date-time",
             if (embed_nets) "" else "-DNNUE_EMBEDDING_OFF=1",
         },
     });
