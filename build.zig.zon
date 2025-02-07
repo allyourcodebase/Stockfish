@@ -1,11 +1,11 @@
 .{
     .name = "Stockfish",
-    .version = "17.0.0",
+    .version = "16.1.0",
     .minimum_zig_version = "0.13.0",
     .dependencies = .{
         .Stockfish = .{
-            .url = "https://github.com/official-stockfish/Stockfish/archive/sf_17.tar.gz",
-            .hash = "1220d8a16d771e844df720de6eb3b2a816411eb21372d8c2ae001f82af5715f55cfc",
+            .url = "https://github.com/official-stockfish/Stockfish/archive/sf_16.1.tar.gz",
+            .hash = "12202f61927503f593e6a7b30b64978855c3cba2020e32e72020d0cf6a90431c297c",
         },
     },
     .paths = .{

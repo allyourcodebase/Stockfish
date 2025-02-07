@@ -19,10 +19,10 @@ pub fn build(b: *Build) !void {
     const embed_nets = b.option(bool, "embed-nets", "Whether or not to embed the NNUE file in the executable (default: true)") orelse true;
     opts.addOption(bool, "embed-nets", embed_nets);
 
-    const small_net = b.option([]const u8, "small-net", "Name of the small NNUE (default: \"nn-37f18f62d772.nnue\")") orelse "nn-37f18f62d772.nnue";
+    const small_net = b.option([]const u8, "small-net", "Name of the small NNUE (default: \"nn-b1a57edbea57.nnue\")") orelse "nn-b1a57edbea57.nnue";
     opts.addOption([]const u8, "small-net", small_net);
 
-    const big_net = b.option([]const u8, "big-net", "Name of the big NNUE (default: \"nn-1111cefa1111.nnue\")") orelse "nn-1111cefa1111.nnue";
+    const big_net = b.option([]const u8, "big-net", "Name of the big NNUE (default: \"nn-baff1ede1f90.nnue\")") orelse "nn-baff1ede1f90.nnue";
     opts.addOption([]const u8, "big-net", big_net);
 
     try downloadNNUE(b, small_net);
@@ -63,17 +63,13 @@ pub fn build(b: *Build) !void {
         .root = stockfish_src_path,
         .files = &.{
             "movegen.cpp",
-            "engine.cpp",
             "nnue/features/half_ka_v2_hm.cpp",
-            "nnue/nnue_misc.cpp",
-            "nnue/network.cpp",
-            "memory.cpp",
+            "nnue/evaluate_nnue.cpp",
             "uci.cpp",
             "search.cpp",
             "ucioption.cpp",
             "tt.cpp",
             "bitboard.cpp",
-            "score.cpp",
             "main.cpp",
             "thread.cpp",
             "benchmark.cpp",
