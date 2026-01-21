@@ -9,6 +9,7 @@ const heap = std.heap;
 const http = std.http;
 const math = std.math;
 const mem = std.mem;
+const Io = std.Io;
 
 pub fn build(b: *Build) !void {
     const target = b.standardTargetOptions(.{});
@@ -31,10 +32,15 @@ pub fn build(b: *Build) !void {
     const stockfish_dep = b.dependency("Stockfish", .{});
     const stockfish_src_path = stockfish_dep.path("src/");
 
-    const exe = b.addExecutable(.{
-        .name = "stockfish",
+    const module = b.createModule(.{
         .target = target,
         .optimize = optimize,
+        .link_libc = true,
+        .link_libcpp = true,
+    });
+    const exe = b.addExecutable(.{
+        .name = "stockfish",
+        .root_module = module,
     });
     b.installArtifact(exe);
 
@@ -45,21 +51,18 @@ pub fn build(b: *Build) !void {
     const run_step = b.step("run", "Build and run stockfish");
     run_step.dependOn(&run_cmd.step);
 
-    exe.linkLibC();
-    exe.linkLibCpp();
-
     if (optimize != .Debug) {
         exe.root_module.pic = true;
         exe.pie = true;
         exe.root_module.omit_frame_pointer = true;
         exe.root_module.strip = true;
-        exe.want_lto = switch (builtin.os.tag) {
-            .macos => false,
-            else => true,
+        exe.lto = switch (builtin.os.tag) {
+            .macos => .none,
+            else => .full,
         };
     }
 
-    exe.addCSourceFiles(.{
+    module.addCSourceFiles(.{
         .root = stockfish_src_path,
         .files = &.{
             "benchmark.cpp",
@@ -94,17 +97,27 @@ pub fn build(b: *Build) !void {
 
 /// The first time we run "zig build", we need to download the necessary nnue files
 fn downloadNNUE(b: *Build, nnue_file: []const u8) !void {
-    _ = fs.cwd().statFile(nnue_file) catch |err| {
-        switch (err) {
-            error.FileNotFound => {
-                const url = try fmt.allocPrint(b.allocator, "https://data.stockfishchess.org/nn/{s}", .{nnue_file});
-                std.debug.print("No nnue file found, downloading {s}\n\n", .{url});
+    const result = if (@hasDecl(fs, "Dir") and @hasDecl(fs.Dir, "statFile"))
+        fs.cwd().statFile(nnue_file)
+    else
+        Io.Dir.cwd().statFile(b.graph.io, nnue_file, .{});
 
+    _ = result catch |err| switch (err) {
+        error.FileNotFound => {
+            const url = try fmt.allocPrint(b.allocator, "https://data.stockfishchess.org/nn/{s}", .{nnue_file});
+            std.debug.print("No nnue file found, downloading {s}\n\n", .{url});
+
+            if (@hasDecl(std.process, "spawn")) {
+                var child = try std.process.spawn(b.graph.io, .{
+                    .argv = &.{ "curl", "-o", nnue_file, url },
+                });
+                std.debug.assert((try child.wait(b.graph.io)).exited == 0);
+            } else {
                 var child = std.process.Child.init(&.{ "curl", "-o", nnue_file, url }, b.allocator);
                 try child.spawn();
                 _ = try child.wait();
-            },
-            else => return err,
-        }
+            }
+        },
+        else => return err,
     };
 }

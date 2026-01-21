@@ -2,7 +2,7 @@
     .name = .stockfish,
     .fingerprint = 0x471e85fceadc709,
     .version = "17.0.0",
-    .minimum_zig_version = "0.14.0",
+    .minimum_zig_version = "0.15.1",
     .dependencies = .{
         .Stockfish = .{
             .url = "https://github.com/official-stockfish/Stockfish/archive/sf_17.1.tar.gz",
