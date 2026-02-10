@@ -23,7 +23,7 @@ pub fn build(b: *Build) !void {
     const small_net = b.option([]const u8, "small-net", "Name of the small NNUE (default: \"nn-37f18f62d772.nnue\")") orelse "nn-37f18f62d772.nnue";
     opts.addOption([]const u8, "small-net", small_net);
 
-    const big_net = b.option([]const u8, "big-net", "Name of the big NNUE (default: \"nn-1111cefa1111.nnue\")") orelse "nn-1c0000000000.nnue";
+    const big_net = b.option([]const u8, "big-net", "Name of the big NNUE (default: \"nn-c288c895ea92.nnue\")") orelse "nn-c288c895ea92.nnue";
     opts.addOption([]const u8, "big-net", big_net);
 
     try downloadNNUE(b, small_net);
@@ -75,6 +75,7 @@ pub fn build(b: *Build) !void {
             "movegen.cpp",
             "movepick.cpp",
             "nnue/features/half_ka_v2_hm.cpp",
+            "nnue/features/full_threats.cpp",
             "nnue/network.cpp",
             "nnue/nnue_accumulator.cpp",
             "nnue/nnue_misc.cpp",
